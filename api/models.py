@@ -27,7 +27,7 @@ class Student(models.Model):
     chat_id = models.IntegerField(unique=True)
     
     def __str__(self):
-        return self.name
+        return self.first_name
 
 
 class StudentWord(models.Model):

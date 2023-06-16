@@ -82,6 +82,13 @@ class WordView(APIView):
             return Response(serializer.data)
     
     def post(self, request: Request):
+        data = request.data
+        topic_name = data.get('topic')
+        try:
+            topic = Topic.objects.get(name=topic_name)
+        except Topic.DoesNotExist:
+            topic = Topic.objects.create(name=topic_name)
+        data['topic'] = topic.id
         serializer = WordSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -212,8 +219,62 @@ class GetRandomWordView(APIView):
     """
     Get a random word.
     """
-    def get(self, request: Request):
+    def get(self, request: Request, chat_id: int):
+        try:
+            student = Student.objects.get(chat_id=chat_id)
+        except Student.DoesNotExist:
+            return Response({'status': 'Student does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Get random word
         words = Word.objects.all()
         random_word = random.choice(words)
+        # create student word
+        try:
+            student_word = StudentWord.objects.get(student=student, word=random_word)
+        except StudentWord.DoesNotExist:
+            student_word = StudentWord.objects.create(student=student, word=random_word)
+        # update word attempts
+        random_word.attempts += 1
+        student_word.attempts += 1
+        # update word last attempt
+        random_word.save()
+        student_word.save()
+        # serialize word
         serializer = WordSerializer(random_word)
         return Response(serializer.data)
+
+
+class CheckAnswerView(APIView):
+    """
+    Check if answer is correct.
+    """
+    def get(self, request: Request, chat_id: int, word_id: int, answer: str):
+        try:
+            student = Student.objects.get(chat_id=chat_id)
+        except Student.DoesNotExist:
+            return Response({'status': 'Student does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+        
+        try:
+            word = Word.objects.get(pk=word_id)
+        except Word.DoesNotExist:
+            return Response({'status': 'Word does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # create student word
+        try:
+            student_word = StudentWord.objects.get(student=student, word=word)
+        except StudentWord.DoesNotExist:
+            student_word = StudentWord.objects.create(student=student, word=word)
+        # update word attempts
+        word.attempts += 1
+        student_word.attempts += 1
+        # check answer
+        if answer.lower().strip() == word.name.lower():
+            word.corrects += 1
+            student_word.corrects += 1
+            word.save()
+            student_word.save()
+            return Response({'is_correct': True, 'name': word.name})
+        else:
+            word.save()
+            student_word.save()
+            return Response({'is_correct': False, 'name': word.name})
