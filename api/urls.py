@@ -1,16 +1,23 @@
 from django.urls import path
 
-from .views import TopicView, WordView, StudentView, StudentWordView, GetRandomWordView, CheckAnswerView
+from .views import (
+    TopicList, TopicDetail,
+    WordList, WordDetail,
+    StudentList, StudentDetail,
+    StudentWordList, StudentWordDetail,
+    StudentWordListByStudent, StudentWordListByWord, StudentWordListByStudentAndWord,
+    Get10RandomWords,
+    CheckAnswer,
+)
+
 
 urlpatterns = [
-    path('topics/', TopicView.as_view()),
-    path('topics/<int:pk>/', TopicView.as_view()),
-    path('words/', WordView.as_view()),
-    path('words/<int:pk>/', WordView.as_view()),
-    path('students/', StudentView.as_view()),
-    path('students/<int:pk>/', StudentView.as_view()),
-    path('studentwords/', StudentWordView.as_view()),
-    path('studentwords/<int:pk>/', StudentWordView.as_view()),
-    path('get_random_word/<int:chat_id>/', GetRandomWordView.as_view()),
-    path('check_answer/<int:chat_id>/<int:word_id>/<answer>/', CheckAnswerView.as_view()),
+    path('student/', StudentList.as_view()),
+    path('student/<int:pk>/', StudentDetail.as_view()),
+    path('word/', WordList.as_view()),
+    path('topic/', TopicList.as_view()),
+    path('word/<int:pk>/', WordList.as_view()),
+    path('student/<int:pk>/words/', WordList.as_view()),
+    path('random-word/<int:chat_id>/', Get10RandomWords.as_view()),
+    path('check-word/', CheckAnswer.as_view()),
 ]

@@ -9,15 +9,31 @@ class Topic(models.Model):
         return self.name
 
 
+class TopicImage(models.Model):
+    image = models.CharField(max_length=128, unique=True)
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='images')
+
+    def __str__(self):
+        return f'{self.topic.name}: {self.image}'
+
+
 class Word(models.Model):
     name  = models.CharField(max_length=128, unique=True)
-    image = models.CharField(max_length=128, unique=True)
+    definition = models.CharField(max_length=128, blank=True, null=True)
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='words')
     attempts = models.IntegerField(default=0, validators=[MinValueValidator(0)])
     corrects = models.IntegerField(default=0, validators=[MinValueValidator(0)])
 
     def __str__(self):
         return f'{self.topic.name}: {self.name}'
+
+
+class WordImage(models.Model):
+    image = models.CharField(max_length=128, unique=True)
+    word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name='images')
+
+    def __str__(self):
+        return f'{self.word.name}: {self.image}'
 
 
 class Student(models.Model):
