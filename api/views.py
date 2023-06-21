@@ -103,7 +103,7 @@ class WordList(APIView):
         data = request.data
         # check topic
         try:
-            topic = Topic.objects.get(pk=data.get('topic'))
+            topic = Topic.objects.get(name=data.get('topic'))
         except Topic.DoesNotExist:
             return Response(
                 {'topic': 'Topic not found'},
