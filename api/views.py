@@ -29,30 +29,9 @@ class TopicList(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        # get data
-        data = request.data
-        # get topic images
-        topic_images = data.pop('topic_images')
-        # create topic
-        serializer = TopicSerializer(data=data)
+        serializer = TopicSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            # create topic images
-            for topic_image in topic_images:
-                topic_image_data = {
-                    'topic': serializer.data['id'],
-                    'image': topic_image
-                }
-                topic_image_serializer = TopicImageSerializer(
-                    data=topic_image_data
-                )
-                if topic_image_serializer.is_valid():
-                    topic_image_serializer.save()
-                else:
-                    return Response(
-                        topic_image_serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
             return Response(
                 serializer.data,
                 status=status.HTTP_201_CREATED
