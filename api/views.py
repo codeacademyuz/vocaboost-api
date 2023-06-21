@@ -101,30 +101,25 @@ class WordList(APIView):
     def post(self, request):
         # create a new topic
         data = request.data
-        # get topic
-        data['topic'] = Topic.objects.get(pk=data['topic']).id
-        # get word images
-        word_images = data.pop('word_images')
-        # create word
+        # check topic
+        try:
+            topic = Topic.objects.get(pk=data.get('topic'))
+        except Topic.DoesNotExist:
+            return Response(
+                {'topic': 'Topic not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        # create a new word
         serializer = WordSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            # create word images
-            for word_image in word_images:
-                word_image_data = {
-                    'word': serializer.data['id'],
-                    'image': word_image
-                }
-                word_image_serializer = WordImageSerializer(
-                    data=word_image_data
-                )
-                if word_image_serializer.is_valid():
-                    word_image_serializer.save()
-                else:
-                    return Response(
-                        word_image_serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
+            # add photo to word
+            word = serializer.instance
+            word_image = WordImage.objects.create(
+                word=word,
+                image=data.get('image')
+            )
+            word_image.save()
             return Response(
                 serializer.data,
                 status=status.HTTP_201_CREATED
