@@ -109,6 +109,7 @@ class WordList(APIView):
                 {'topic': 'Topic not found'},
                 status=status.HTTP_404_NOT_FOUND
             )
+        data['topic'] = topic.id
         # create a new word
         serializer = WordSerializer(data=data)
         if serializer.is_valid():
