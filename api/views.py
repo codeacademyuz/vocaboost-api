@@ -375,13 +375,15 @@ class Get10RandomWords(APIView):
             vocabulary['id'] = word.id
             vocabulary['name'] = word.name
             vocabulary['definition'] = word.definition
+            vocabulary['attempts'] = word.attempts
+            vocabulary['corrects'] = word.corrects
             image = word.images.all().first()
             if image:
                 vocabulary['image'] = image.image
             else:
                 vocabulary['image'] = None  
             
-            vocabulary['topic'] = word.topic
+            vocabulary['topic'] = word.topic.id
             vocabularies.append(vocabulary)
 
         return Response(vocabularies)
