@@ -369,8 +369,22 @@ class Get10RandomWords(APIView):
         for word in random_words:
             StudentWord.objects.create(student=student, word=word)
 
-        serializer = WordSerializer(random_words, many=True)
-        return Response(serializer.data)
+        vocabularies = []
+        for word in random_words:
+            vocabulary = {}
+            vocabulary['id'] = word.id
+            vocabulary['name'] = word.name
+            vocabulary['definition'] = word.definition
+            image = word.images.all().first()
+            if image:
+                vocabulary['image'] = image.image
+            else:
+                vocabulary['image'] = None  
+            
+            vocabulary['topic'] = word.topic
+            vocabularies.append(vocabulary)
+
+        return Response(vocabularies)
 
 
 class CheckAnswer(APIView):
@@ -410,3 +424,21 @@ class CheckAnswer(APIView):
                 status=status.HTTP_200_OK
             )
         
+
+
+class GetRandomWordImage(APIView):
+    """
+    Get random image for specified word.
+    """
+    def get(self, request, pk):
+        try:
+            word = Word.objects.get(id=pk)
+        except Word.DoesNotExist:
+            return Response(
+                {'error': 'Word not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        images = Image.objects.filter(word=word)
+        random_image = random.choice(images)
+        serializer = ImageSerializer(random_image)
+        return Response(serializer.data)

@@ -8,6 +8,7 @@ from .views import (
     StudentWordListByStudent, StudentWordListByWord, StudentWordListByStudentAndWord,
     Get10RandomWords,
     CheckAnswer,
+    GetRandomWordImage,
 )
 
 
@@ -20,4 +21,5 @@ urlpatterns = [
     path('student/<int:pk>/words/', WordList.as_view()),
     path('random-word/<int:chat_id>/', Get10RandomWords.as_view()),
     path('check-word/', CheckAnswer.as_view()),
+    path('random-word-image/<int:chat_id>/<int:word_id>/', GetRandomWordImage.as_view()),
 ]
