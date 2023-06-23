@@ -415,7 +415,7 @@ class CheckAnswer(APIView):
                 {'error': 'Student word not found'},
                 status=status.HTTP_404_NOT_FOUND
             )
-        if student_word.word.name == request.data['answer']:
+        if student_word.word.name.lower() == request.data['answer'].lower():
             return Response(
                 {'correct': True},
                 status=status.HTTP_200_OK
